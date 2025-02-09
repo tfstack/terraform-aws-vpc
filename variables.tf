@@ -173,3 +173,20 @@ variable "jumphost_user_data_template_vars" {
   type        = map(any)
   default     = {}
 }
+
+variable "jumphost_iam_role_arns" {
+  description = "List of IAM role ARNs to be included in policies."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for r in var.jumphost_iam_role_arns : can(regex("^arn:aws:iam::(\\d{12}|aws):role/.*$", r))])
+    error_message = "Each value in jumphost_iam_role_arns must be a valid IAM role ARN with a 12-digit account ID or 'aws'."
+  }
+}
+
+variable "jumphost_inline_policy_arns" {
+  description = "List of IAM inline policy ARNs to attach to the jumphost role."
+  type        = list(string)
+  default     = []
+}

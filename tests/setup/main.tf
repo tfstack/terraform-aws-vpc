@@ -18,6 +18,27 @@ resource "random_string" "suffix" {
   upper   = false
 }
 
+resource "aws_iam_policy" "jumphost_kafka_policy" {
+  name        = "JumphostKafkaPolicy-${random_string.suffix.result}"
+  description = "Policy allowing Kafka and Secrets Manager access"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "kafka:*",
+          "kafka-cluster:*",
+          "secretsmanager:GetSecretValue",
+          "kms:Decrypt"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 output "suffix" {
   value = random_string.suffix.result
 }
@@ -28,4 +49,8 @@ output "cloud_init_yaml" {
 
 output "cloud_init_yaml_tpl" {
   value = "${path.module}/external/cloud-init.yaml.tpl"
+}
+
+output "jumphost_inline_policy_arns" {
+  value = [aws_iam_policy.jumphost_kafka_policy.arn]
 }
