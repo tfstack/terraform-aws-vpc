@@ -149,3 +149,27 @@ variable "jumphost_allow_egress" {
   type        = bool
   default     = false
 }
+
+variable "jumphost_user_data" {
+  description = "Raw user data content for the EC2 instance. Takes precedence over file-based user data."
+  type        = string
+  default     = ""
+}
+
+variable "jumphost_user_data_file" {
+  description = "Path to a user data file. If provided, its content will be used."
+  type        = string
+  default     = ""
+}
+
+variable "jumphost_user_data_template" {
+  description = "Path to a user data template file. If provided, it will be rendered using `jumphost_user_data_template_vars`."
+  type        = string
+  default     = ""
+}
+
+variable "jumphost_user_data_template_vars" {
+  description = "Variables for rendering the `jumphost_user_data_template` file."
+  type        = map(any)
+  default     = {}
+}
