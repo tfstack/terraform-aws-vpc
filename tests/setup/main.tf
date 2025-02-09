@@ -21,3 +21,11 @@ resource "random_string" "suffix" {
 output "suffix" {
   value = random_string.suffix.result
 }
+
+output "cloud_init_yaml" {
+  value = "${path.module}/external/cloud-init.yaml"
+}
+
+output "cloud_init_yaml_tpl" {
+  value = "${path.module}/external/cloud-init.yaml.tpl"
+}

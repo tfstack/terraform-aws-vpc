@@ -25,6 +25,12 @@ data "aws_ami" "amzn2023" {
 # ===================================
 locals {
   name = var.vpc_name
+  user_data = (
+    var.jumphost_user_data != null && var.jumphost_user_data != "" ? var.jumphost_user_data :
+    var.jumphost_user_data_file != null && var.jumphost_user_data_file != "" ? file(var.jumphost_user_data_file) :
+    var.jumphost_user_data_template != null && var.jumphost_user_data_template != "" ? templatefile(var.jumphost_user_data_template, var.jumphost_user_data_template_vars) :
+    null
+  )
 }
 
 # ===================================
@@ -286,10 +292,7 @@ resource "aws_instance" "jumphost" {
   instance_type = var.jumphost_instance_type
   subnet_id     = aws_subnet.jumphost[0].id
 
-  user_data = <<-EOF
-    #!/bin/bash
-    hostnamectl set-hostname jumphost
-  EOF
+  user_data_base64 = local.user_data != null ? base64encode(local.user_data) : null
 
   vpc_security_group_ids = [
     aws_security_group.jumphost[0].id
