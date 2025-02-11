@@ -3,6 +3,7 @@
 # ===================================
 # Fetch AWS region dynamically
 data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 # Fetch Latest Amazon Linux 2023 AMI for Jumphost
 data "aws_ami" "amzn2023" {
@@ -285,12 +286,63 @@ resource "aws_ec2_instance_connect_endpoint" "this" {
 # ===================================
 # Jumphost EC2 Instance
 # ===================================
+module "iam_policy_chunker" {
+  source = "tfstack/iam-policy-chunker/aws"
+
+  resource_list      = var.jumphost_iam_role_arns
+  actions            = ["sts:AssumeRole"]
+  policy_name        = "${local.name}-jumphost"
+  policy_description = "${local.name} IAM policy for jumphost"
+  chunk_size         = 10
+}
+
+resource "aws_iam_role" "jumphost" {
+  count = (
+    length(module.iam_policy_chunker.policy_names) > 0 ||
+    length(var.jumphost_inline_policy_arns) > 0
+  ) ? 1 : 0
+
+  name = "${local.name}-jumphost"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "jumphost" {
+  count = length(module.iam_policy_chunker.policy_names) + length(var.jumphost_inline_policy_arns)
+
+  role = aws_iam_role.jumphost[0].name
+  policy_arn = (
+    count.index < length(module.iam_policy_chunker.policy_names)
+    ? "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${module.iam_policy_chunker.policy_names[count.index]}"
+    : var.jumphost_inline_policy_arns[count.index - length(module.iam_policy_chunker.policy_names)]
+  )
+}
+
+resource "aws_iam_instance_profile" "jumphost" {
+  count = length(module.iam_policy_chunker.policy_names) > 0 ? 1 : 0
+
+  name = "${local.name}-jumphost"
+  role = aws_iam_role.jumphost[0].name
+}
+
 resource "aws_instance" "jumphost" {
   count = var.jumphost_subnet != "" ? 1 : 0
 
-  ami           = data.aws_ami.amzn2023.id
-  instance_type = var.jumphost_instance_type
-  subnet_id     = aws_subnet.jumphost[0].id
+  ami                  = data.aws_ami.amzn2023.id
+  instance_type        = var.jumphost_instance_type
+  iam_instance_profile = length(module.iam_policy_chunker.policy_names) > 0 ? aws_iam_instance_profile.jumphost[0].name : null
+  subnet_id            = aws_subnet.jumphost[0].id
 
   user_data_base64 = local.user_data != null ? base64encode(local.user_data) : null
 
