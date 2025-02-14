@@ -330,7 +330,10 @@ resource "aws_iam_role_policy_attachment" "jumphost" {
 }
 
 resource "aws_iam_instance_profile" "jumphost" {
-  count = length(module.iam_policy_chunker.policy_names) > 0 ? 1 : 0
+  count = (
+    length(module.iam_policy_chunker.policy_names) > 0 ||
+    length(var.jumphost_inline_policy_arns) > 0
+  ) ? 1 : 0
 
   name = "${local.name}-jumphost"
   role = aws_iam_role.jumphost[0].name
@@ -341,7 +344,7 @@ resource "aws_instance" "jumphost" {
 
   ami                  = data.aws_ami.amzn2023.id
   instance_type        = var.jumphost_instance_type
-  iam_instance_profile = length(module.iam_policy_chunker.policy_names) > 0 ? aws_iam_instance_profile.jumphost[0].name : null
+  iam_instance_profile = length(aws_iam_instance_profile.jumphost) > 0 ? aws_iam_instance_profile.jumphost[0].name : null
   subnet_id            = aws_subnet.jumphost[0].id
 
   user_data_base64 = local.user_data != null ? base64encode(local.user_data) : null
