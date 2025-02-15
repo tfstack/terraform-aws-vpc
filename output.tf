@@ -64,7 +64,7 @@ output "jumphost_security_group_id" {
 }
 
 output "jumphost_instance_id" {
-  value = var.jumphost_instance_create != "" ? aws_instance.jumphost[0].id : null
+  value = length(aws_instance.jumphost) > 0 ? aws_instance.jumphost[0].id : null
 }
 
 output "ec2_instance_connect_endpoint_id" {
