@@ -340,18 +340,16 @@ resource "aws_iam_instance_profile" "jumphost" {
 }
 
 resource "aws_instance" "jumphost" {
-  count = var.jumphost_subnet != "" ? 1 : 0
+  count = var.jumphost_instance_create ? 1 : 0
 
   ami                  = data.aws_ami.amzn2023.id
   instance_type        = var.jumphost_instance_type
   iam_instance_profile = length(aws_iam_instance_profile.jumphost) > 0 ? aws_iam_instance_profile.jumphost[0].name : null
-  subnet_id            = aws_subnet.jumphost[0].id
+  subnet_id            = length(aws_subnet.jumphost) > 0 ? aws_subnet.jumphost[0].id : null
 
   user_data_base64 = local.user_data != null ? base64encode(local.user_data) : null
 
-  vpc_security_group_ids = [
-    aws_security_group.jumphost[0].id
-  ]
+  vpc_security_group_ids = length(aws_security_group.jumphost) > 0 ? [aws_security_group.jumphost[0].id] : []
 
   tags = {
     Name = "${local.name}-jumphost"
