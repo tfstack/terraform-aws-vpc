@@ -190,3 +190,9 @@ variable "jumphost_inline_policy_arns" {
   type        = list(string)
   default     = []
 }
+
+variable "jumphost_instance_create" {
+  description = "Boolean flag to determine whether to create the jumphost instance."
+  type        = bool
+  default     = true
+}
