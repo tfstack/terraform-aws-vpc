@@ -245,7 +245,7 @@ resource "aws_route_table_association" "jumphost" {
   route_table_id = aws_route_table.jumphost[0].id
 }
 
-resource "aws_security_group" "jumphost" {
+resource "aws_security_group" "eic" {
   count = var.jumphost_subnet != "" ? 1 : 0
 
   vpc_id = aws_vpc.this.id
@@ -270,13 +270,13 @@ resource "aws_security_group" "jumphost" {
 }
 
 # ===================================
-# EC2 Instance Connect Endpoint (For Jumphost)
+# EC2 Instance Connect Endpoint
 # ===================================
 resource "aws_ec2_instance_connect_endpoint" "this" {
-  count = var.jumphost_subnet != "" ? 1 : 0
+  count = var.eic_subnet != "none" ? 1 : 0
 
-  subnet_id          = aws_subnet.jumphost[0].id
-  security_group_ids = [aws_security_group.jumphost[0].id]
+  subnet_id          = var.eic_subnet == "jumphost" ? aws_subnet.jumphost[0].id : aws_subnet.private[0].id
+  security_group_ids = length(aws_security_group.eic) > 0 ? [aws_security_group.eic[0].id] : []
 
   tags = {
     Name = "${local.name}-instance-connect"
@@ -349,7 +349,7 @@ resource "aws_instance" "jumphost" {
 
   user_data_base64 = local.user_data != null ? base64encode(local.user_data) : null
 
-  vpc_security_group_ids = length(aws_security_group.jumphost) > 0 ? [aws_security_group.jumphost[0].id] : []
+  vpc_security_group_ids = length(aws_security_group.eic) > 0 ? [aws_security_group.eic[0].id] : []
 
   tags = {
     Name = "${local.name}-jumphost"
