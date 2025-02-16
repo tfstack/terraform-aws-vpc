@@ -26,10 +26,23 @@ data "aws_ami" "amzn2023" {
 # ===================================
 locals {
   name = var.vpc_name
+
   user_data = (
     var.jumphost_user_data != null && var.jumphost_user_data != "" ? var.jumphost_user_data :
     var.jumphost_user_data_file != null && var.jumphost_user_data_file != "" ? file(var.jumphost_user_data_file) :
     var.jumphost_user_data_template != null && var.jumphost_user_data_template != "" ? templatefile(var.jumphost_user_data_template, var.jumphost_user_data_template_vars) :
+    null
+  )
+
+  # Ensure private subnet selection is always valid
+  private_subnet_map     = length(aws_subnet.private) > 0 ? zipmap(var.private_subnets, aws_subnet.private[*].id) : {}
+  default_private_subnet = length(var.private_subnets) > 0 ? var.private_subnets[0] : null
+
+  selected_private_subnet = var.eic_private_subnet != "" ? var.eic_private_subnet : local.default_private_subnet
+
+  eic_subnet_id = (
+    var.eic_subnet == "jumphost" ? aws_subnet.jumphost[0].id :
+    var.eic_subnet == "private" ? lookup(local.private_subnet_map, local.selected_private_subnet, null) :
     null
   )
 }
@@ -246,7 +259,7 @@ resource "aws_route_table_association" "jumphost" {
 }
 
 resource "aws_security_group" "eic" {
-  count = var.jumphost_subnet != "" ? 1 : 0
+  count = var.eic_subnet != "none" ? 1 : 0
 
   vpc_id = aws_vpc.this.id
 
@@ -275,7 +288,7 @@ resource "aws_security_group" "eic" {
 resource "aws_ec2_instance_connect_endpoint" "this" {
   count = var.eic_subnet != "none" ? 1 : 0
 
-  subnet_id          = var.eic_subnet == "jumphost" ? aws_subnet.jumphost[0].id : aws_subnet.private[0].id
+  subnet_id          = local.eic_subnet_id
   security_group_ids = length(aws_security_group.eic) > 0 ? [aws_security_group.eic[0].id] : []
 
   tags = {
@@ -340,7 +353,7 @@ resource "aws_iam_instance_profile" "jumphost" {
 }
 
 resource "aws_instance" "jumphost" {
-  count = var.jumphost_instance_create ? 1 : 0
+  count = (var.jumphost_subnet != "" && var.jumphost_instance_create) ? 1 : 0
 
   ami                  = data.aws_ami.amzn2023.id
   instance_type        = var.jumphost_instance_type

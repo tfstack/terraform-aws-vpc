@@ -217,3 +217,19 @@ variable "eic_subnet" {
     error_message = "Cannot set eic_subnet to 'private' because the private subnet does not exist."
   }
 }
+
+variable "eic_private_subnet" {
+  description = "Specify which private subnet to use for EC2 Instance Connect Endpoint. Must be one of private_subnets or empty to use the first subnet."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.eic_private_subnet == "" || can(cidrhost(var.eic_private_subnet, 0))
+    error_message = "Invalid CIDR format. Ensure eic_private_subnet is a valid CIDR block (e.g., '10.0.4.0/24')."
+  }
+
+  validation {
+    condition     = var.eic_private_subnet == "" || contains(var.private_subnets, var.eic_private_subnet)
+    error_message = "Invalid eic_private_subnet. Must be one of private_subnets or empty."
+  }
+}
