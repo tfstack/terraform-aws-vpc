@@ -82,16 +82,21 @@ Terraform module for provisioning a VPC with networking components
 
 | Name | Description |
 |------|-------------|
+| <a name="output_database_subnet_cidrs"></a> [database\_subnet\_cidrs](#output\_database\_subnet\_cidrs) | n/a |
 | <a name="output_database_subnet_ids"></a> [database\_subnet\_ids](#output\_database\_subnet\_ids) | n/a |
 | <a name="output_eic_endpoint_id"></a> [eic\_endpoint\_id](#output\_eic\_endpoint\_id) | n/a |
 | <a name="output_eic_security_group_id"></a> [eic\_security\_group\_id](#output\_eic\_security\_group\_id) | n/a |
 | <a name="output_eip_allocations"></a> [eip\_allocations](#output\_eip\_allocations) | n/a |
 | <a name="output_internet_gateway_id"></a> [internet\_gateway\_id](#output\_internet\_gateway\_id) | n/a |
+| <a name="output_isolated_subnet_cidrs"></a> [isolated\_subnet\_cidrs](#output\_isolated\_subnet\_cidrs) | n/a |
 | <a name="output_isolated_subnet_ids"></a> [isolated\_subnet\_ids](#output\_isolated\_subnet\_ids) | n/a |
 | <a name="output_jumphost_instance_id"></a> [jumphost\_instance\_id](#output\_jumphost\_instance\_id) | n/a |
+| <a name="output_jumphost_subnet_cidr"></a> [jumphost\_subnet\_cidr](#output\_jumphost\_subnet\_cidr) | n/a |
 | <a name="output_jumphost_subnet_id"></a> [jumphost\_subnet\_id](#output\_jumphost\_subnet\_id) | n/a |
 | <a name="output_nat_gateway_ids"></a> [nat\_gateway\_ids](#output\_nat\_gateway\_ids) | n/a |
+| <a name="output_private_subnet_cidrs"></a> [private\_subnet\_cidrs](#output\_private\_subnet\_cidrs) | n/a |
 | <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | n/a |
+| <a name="output_public_subnet_cidrs"></a> [public\_subnet\_cidrs](#output\_public\_subnet\_cidrs) | n/a |
 | <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | n/a |
 | <a name="output_region"></a> [region](#output\_region) | n/a |
 | <a name="output_route_table_private_ids"></a> [route\_table\_private\_ids](#output\_route\_table\_private\_ids) | n/a |

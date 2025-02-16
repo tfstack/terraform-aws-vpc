@@ -10,10 +10,6 @@ output "vpc_cidr" {
   value = aws_vpc.this.cidr_block
 }
 
-output "internet_gateway_id" {
-  value = var.create_igw ? aws_internet_gateway.this[0].id : null
-}
-
 output "public_subnet_ids" {
   value = aws_subnet.public[*].id
 }
@@ -32,6 +28,30 @@ output "database_subnet_ids" {
 
 output "jumphost_subnet_id" {
   value = length(aws_subnet.jumphost) > 0 ? aws_subnet.jumphost[0].id : null
+}
+
+output "public_subnet_cidrs" {
+  value = aws_subnet.public[*].cidr_block
+}
+
+output "private_subnet_cidrs" {
+  value = aws_subnet.private[*].cidr_block
+}
+
+output "isolated_subnet_cidrs" {
+  value = aws_subnet.isolated[*].cidr_block
+}
+
+output "database_subnet_cidrs" {
+  value = aws_subnet.database[*].cidr_block
+}
+
+output "jumphost_subnet_cidr" {
+  value = aws_subnet.jumphost[*].cidr_block
+}
+
+output "internet_gateway_id" {
+  value = var.create_igw ? aws_internet_gateway.this[0].id : null
 }
 
 output "nat_gateway_ids" {
