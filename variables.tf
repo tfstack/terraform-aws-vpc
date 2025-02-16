@@ -196,3 +196,24 @@ variable "jumphost_instance_create" {
   type        = bool
   default     = true
 }
+
+variable "eic_subnet" {
+  description = "Set to 'jumphost', 'private', or 'none' to determine which subnet gets the EC2 Instance Connect Endpoint"
+  type        = string
+  default     = "none"
+
+  validation {
+    condition     = contains(["none", "jumphost", "private"], var.eic_subnet)
+    error_message = "Allowed values for eic_subnet are 'jumphost', 'private', or 'none'."
+  }
+
+  validation {
+    condition     = !(var.eic_subnet == "jumphost" && length(aws_subnet.jumphost) == 0)
+    error_message = "Cannot set eic_subnet to 'jumphost' because the jumphost subnet does not exist."
+  }
+
+  validation {
+    condition     = !(var.eic_subnet == "private" && length(aws_subnet.private) == 0)
+    error_message = "Cannot set eic_subnet to 'private' because the private subnet does not exist."
+  }
+}

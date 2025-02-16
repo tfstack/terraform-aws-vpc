@@ -50,23 +50,14 @@ output "route_table_private_ids" {
   value = var.ngw_type != "none" ? aws_route_table.private[*].id : []
 }
 
-output "route_table_jumphost_id" {
-  value = (
-    var.jumphost_subnet != "" &&
-    var.jumphost_allow_egress &&
-    var.ngw_type != "none" &&
-    length(aws_route_table.jumphost) > 0
-  ) ? aws_route_table.jumphost[0].id : null
-}
-
-output "jumphost_security_group_id" {
-  value = var.jumphost_subnet != "" ? aws_security_group.jumphost[0].id : null
+output "eic_security_group_id" {
+  value = var.jumphost_subnet != "" ? aws_security_group.eic[0].id : null
 }
 
 output "jumphost_instance_id" {
   value = length(aws_instance.jumphost) > 0 ? aws_instance.jumphost[0].id : null
 }
 
-output "ec2_instance_connect_endpoint_id" {
-  value = var.jumphost_subnet != "" ? aws_ec2_instance_connect_endpoint.this[0].id : null
+output "eic_endpoint_id" {
+  value = length(aws_ec2_instance_connect_endpoint.this) > 0 ? aws_ec2_instance_connect_endpoint.this[0].id : null
 }
