@@ -31,15 +31,15 @@ output "database_subnet_ids" {
 }
 
 output "jumphost_subnet_id" {
-  value = var.jumphost_subnet != "" ? aws_subnet.jumphost[0].id : null
+  value = length(aws_subnet.jumphost) > 0 ? aws_subnet.jumphost[0].id : null
 }
 
 output "nat_gateway_ids" {
-  value = var.ngw_type != "none" ? aws_nat_gateway.this[*].id : []
+  value = length(aws_nat_gateway.this) > 0 ? aws_nat_gateway.this[*].id : []
 }
 
 output "eip_allocations" {
-  value = var.ngw_type != "none" ? aws_eip.this[*].id : []
+  value = length(aws_eip.this) > 0 ? aws_eip.this[*].id : []
 }
 
 output "route_table_public_ids" {
@@ -47,11 +47,11 @@ output "route_table_public_ids" {
 }
 
 output "route_table_private_ids" {
-  value = var.ngw_type != "none" ? aws_route_table.private[*].id : []
+  value = length(aws_route_table.private) > 0 ? aws_route_table.private[*].id : []
 }
 
 output "eic_security_group_id" {
-  value = var.jumphost_subnet != "" ? aws_security_group.eic[0].id : null
+  value = length(aws_security_group.eic) > 0 ? aws_security_group.eic[0].id : ""
 }
 
 output "jumphost_instance_id" {
