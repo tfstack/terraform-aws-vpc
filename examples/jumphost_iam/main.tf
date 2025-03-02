@@ -49,6 +49,7 @@ module "aws_vpc" {
   jumphost_inline_policy_arns = [
     aws_iam_policy.jumphost_kafka_policy.arn
   ]
+  jumphost_log_prevent_destroy = false
 
   create_igw = false
   ngw_type   = "none"

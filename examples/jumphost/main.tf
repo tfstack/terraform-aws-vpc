@@ -21,15 +21,29 @@ module "aws_vpc" {
   vpc_cidr           = "10.0.0.0/16"
   availability_zones = data.aws_availability_zones.available.names
 
-  jumphost_subnet        = "10.0.0.0/24"
-  jumphost_ingress_cidrs = ["${data.http.my_public_ip.response_body}/32"]
-  jumphost_instance_type = "t3.micro"
-  jumphost_allow_egress  = true
+  public_subnets = ["10.0.1.0/24"]
+
+  eic_subnet = "jumphost"
+
+  jumphost_subnet          = "10.0.0.0/24"
+  jumphost_ingress_cidrs   = ["${data.http.my_public_ip.response_body}/32"]
+  jumphost_instance_type   = "t3.micro"
+  jumphost_allow_egress    = true
+  jumphost_instance_create = true
 
   jumphost_user_data = <<-EOF
     #!/bin/bash
     hostnamectl set-hostname jumphost
   EOF
+
+  # jumphost_user_data = <<-EOF
+  #   #cloud-config
+  #   runcmd:
+  #     - hostnamectl set-hostname jumphost
+  # EOF
+
+  jumphost_log_retention_days  = 1
+  jumphost_log_prevent_destroy = false
 
   create_igw = true
   ngw_type   = "single"
