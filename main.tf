@@ -41,15 +41,23 @@ locals {
     var.jumphost_user_data != null && var.jumphost_user_data != "" ? var.jumphost_user_data :
     var.jumphost_user_data_file != null && var.jumphost_user_data_file != "" ? file(var.jumphost_user_data_file) :
     var.jumphost_user_data_template != null && var.jumphost_user_data_template != "" ? templatefile(var.jumphost_user_data_template, var.jumphost_user_data_template_vars) :
-    null
+    "#!/bin/bash\n" # Fallback default value to avoid null issues
   )
 
   # Determine CloudWatch user data based on format
   cloudwatch_user_data = (
-    startswith(local.user_data, "#cloud-config")
-    ? templatefile("${path.module}/external/cloudwatch-agent.yaml", { aws_region = data.aws_region.current.name })
+    length(local.user_data) > 0 && startswith(local.user_data, "#cloud-config")
+    ? ""
     : templatefile("${path.module}/external/cloudwatch-agent.sh", { aws_region = data.aws_region.current.name })
   )
+
+  ### for now, not supported for cloud-config
+  # cloudwatch_user_data = (
+  #   length(local.user_data) > 0 && startswith(local.user_data, "#cloud-config")
+  #   ? templatefile("${path.module}/external/cloudwatch-agent.yaml", { aws_region = data.aws_region.current.name })
+  #   : templatefile("${path.module}/external/cloudwatch-agent.sh", { aws_region = data.aws_region.current.name })
+  # )
+  ###
 
   # Merge user data with CloudWatch Agent setup **BEFORE checking duplicates**
   merged_user_data = join("\n", compact([

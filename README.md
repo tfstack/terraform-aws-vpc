@@ -24,11 +24,15 @@ Terraform module for provisioning a VPC with networking components
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_log_group.jumphost_with_prevent_destroy](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_log_group.jumphost_without_prevent_destroy](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/cloudwatch_log_group) | resource |
 | [aws_ec2_instance_connect_endpoint.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/ec2_instance_connect_endpoint) | resource |
 | [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/eip) | resource |
 | [aws_iam_instance_profile.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_instance_profile) | resource |
+| [aws_iam_policy.jumphost_logging](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_policy) | resource |
 | [aws_iam_role.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.jumphost_logging](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_instance.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/instance) | resource |
 | [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/internet_gateway) | resource |
 | [aws_nat_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/nat_gateway) | resource |
@@ -48,6 +52,7 @@ Terraform module for provisioning a VPC with networking components
 | [aws_ami.amzn2023](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/ami) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/caller_identity) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/region) | data source |
+| [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/security_group) | data source |
 
 ## Inputs
 
@@ -65,6 +70,8 @@ Terraform module for provisioning a VPC with networking components
 | <a name="input_jumphost_inline_policy_arns"></a> [jumphost\_inline\_policy\_arns](#input\_jumphost\_inline\_policy\_arns) | List of IAM inline policy ARNs to attach to the jumphost role. | `list(string)` | `[]` | no |
 | <a name="input_jumphost_instance_create"></a> [jumphost\_instance\_create](#input\_jumphost\_instance\_create) | Boolean flag to determine whether to create the jumphost instance. | `bool` | `true` | no |
 | <a name="input_jumphost_instance_type"></a> [jumphost\_instance\_type](#input\_jumphost\_instance\_type) | The EC2 instance type for the jumphost | `string` | `"t3.micro"` | no |
+| <a name="input_jumphost_log_prevent_destroy"></a> [jumphost\_log\_prevent\_destroy](#input\_jumphost\_log\_prevent\_destroy) | Whether to prevent the destruction of the CloudWatch log group | `bool` | `true` | no |
+| <a name="input_jumphost_log_retention_days"></a> [jumphost\_log\_retention\_days](#input\_jumphost\_log\_retention\_days) | The number of days to retain logs for the jumphost in CloudWatch | `number` | `30` | no |
 | <a name="input_jumphost_subnet"></a> [jumphost\_subnet](#input\_jumphost\_subnet) | CIDR block for the jump host subnet. If empty, the subnet will not be created. | `string` | `""` | no |
 | <a name="input_jumphost_user_data"></a> [jumphost\_user\_data](#input\_jumphost\_user\_data) | Raw user data content for the EC2 instance. Takes precedence over file-based user data. | `string` | `""` | no |
 | <a name="input_jumphost_user_data_file"></a> [jumphost\_user\_data\_file](#input\_jumphost\_user\_data\_file) | Path to a user data file. If provided, its content will be used. | `string` | `""` | no |
