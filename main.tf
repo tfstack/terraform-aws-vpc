@@ -21,19 +21,63 @@ data "aws_ami" "amzn2023" {
   }
 }
 
+data "aws_security_group" "default" {
+  filter {
+    name   = "group-name"
+    values = ["default"]
+  }
+
+  vpc_id = aws_vpc.this.id
+}
+
 # ===================================
 # Local Variables
 # ===================================
 locals {
   name = var.vpc_name
 
+  # Get user data from variable, file, or template
   user_data = (
     var.jumphost_user_data != null && var.jumphost_user_data != "" ? var.jumphost_user_data :
     var.jumphost_user_data_file != null && var.jumphost_user_data_file != "" ? file(var.jumphost_user_data_file) :
     var.jumphost_user_data_template != null && var.jumphost_user_data_template != "" ? templatefile(var.jumphost_user_data_template, var.jumphost_user_data_template_vars) :
-    null
+    "#!/bin/bash\n" # Fallback default value to avoid null issues
   )
 
+  # Determine CloudWatch user data based on format
+  cloudwatch_user_data = (
+    length(local.user_data) > 0 && startswith(local.user_data, "#cloud-config")
+    ? ""
+    : templatefile("${path.module}/external/cloudwatch-agent.sh", { aws_region = data.aws_region.current.name })
+  )
+
+  ### for now, not supported for cloud-config
+  # cloudwatch_user_data = (
+  #   length(local.user_data) > 0 && startswith(local.user_data, "#cloud-config")
+  #   ? templatefile("${path.module}/external/cloudwatch-agent.yaml", { aws_region = data.aws_region.current.name })
+  #   : templatefile("${path.module}/external/cloudwatch-agent.sh", { aws_region = data.aws_region.current.name })
+  # )
+  ###
+
+  # Merge user data with CloudWatch Agent setup **BEFORE checking duplicates**
+  merged_user_data = join("\n", compact([
+    local.user_data,
+    local.cloudwatch_user_data
+  ]))
+
+  # Split merged user data into lines and remove duplicate shebangs or cloud-config
+  cleaned_lines = distinct(split("\n", local.merged_user_data))
+
+  # Reconstruct user data after removing duplicate shebangs and cloud-config
+  cleaned_user_data = join("\n", local.cleaned_lines)
+
+  # Ensure CloudInit remains unchanged, and add `#!/bin/bash` only if needed
+  final_user_data = (
+    startswith(local.cleaned_user_data, "#cloud-config")
+    ? local.cleaned_user_data
+    : (startswith(local.cleaned_user_data, "#!")
+    ? local.cleaned_user_data : join("\n", compact(["#!/bin/bash", local.cleaned_user_data])))
+  )
   # Ensure private subnet selection is always valid
   private_subnet_map     = length(aws_subnet.private) > 0 ? zipmap(var.private_subnets, aws_subnet.private[*].id) : {}
   default_private_subnet = length(var.private_subnets) > 0 ? var.private_subnets[0] : null
@@ -312,7 +356,8 @@ module "iam_policy_chunker" {
 resource "aws_iam_role" "jumphost" {
   count = (
     length(module.iam_policy_chunker.policy_names) > 0 ||
-    length(var.jumphost_inline_policy_arns) > 0
+    length(var.jumphost_inline_policy_arns) > 0 ||
+    var.jumphost_instance_create
   ) ? 1 : 0
 
   name = "${local.name}-jumphost"
@@ -331,6 +376,45 @@ resource "aws_iam_role" "jumphost" {
   })
 }
 
+resource "aws_iam_policy" "jumphost_logging" {
+  count = (
+    length(aws_iam_role.jumphost) > 0 &&
+    var.jumphost_instance_create
+  ) ? 1 : 0
+
+  name        = "${local.name}-jumphost-logging"
+  description = "Allows EC2 jumphost to write logs only to its CloudWatch log group"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents",
+        ]
+        Resource = (
+          length(aws_cloudwatch_log_group.jumphost_with_prevent_destroy) > 0
+          ? "${aws_cloudwatch_log_group.jumphost_with_prevent_destroy[0].arn}:log-stream:*"
+          : "${aws_cloudwatch_log_group.jumphost_without_prevent_destroy[0].arn}:log-stream:*"
+        )
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "jumphost_logging" {
+  count = (
+    length(aws_iam_role.jumphost) > 0 &&
+    var.jumphost_instance_create
+  ) ? 1 : 0
+
+  role       = aws_iam_role.jumphost[0].name
+  policy_arn = aws_iam_policy.jumphost_logging[0].arn
+}
+
 resource "aws_iam_role_policy_attachment" "jumphost" {
   count = length(module.iam_policy_chunker.policy_names) + length(var.jumphost_inline_policy_arns)
 
@@ -344,8 +428,8 @@ resource "aws_iam_role_policy_attachment" "jumphost" {
 
 resource "aws_iam_instance_profile" "jumphost" {
   count = (
-    length(module.iam_policy_chunker.policy_names) > 0 ||
-    length(var.jumphost_inline_policy_arns) > 0
+    length(aws_iam_role.jumphost) > 0 &&
+    var.jumphost_instance_create
   ) ? 1 : 0
 
   name = "${local.name}-jumphost"
@@ -360,9 +444,43 @@ resource "aws_instance" "jumphost" {
   iam_instance_profile = length(aws_iam_instance_profile.jumphost) > 0 ? aws_iam_instance_profile.jumphost[0].name : null
   subnet_id            = length(aws_subnet.jumphost) > 0 ? aws_subnet.jumphost[0].id : null
 
-  user_data_base64 = local.user_data != null ? base64encode(local.user_data) : null
+  user_data_base64 = base64encode(local.final_user_data)
 
-  vpc_security_group_ids = length(aws_security_group.eic) > 0 ? [aws_security_group.eic[0].id] : []
+  vpc_security_group_ids = (
+    length(aws_security_group.eic) > 0 ?
+    [aws_security_group.eic[0].id] :
+    [data.aws_security_group.default.id]
+  )
+
+  tags = {
+    Name = "${local.name}-jumphost"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "jumphost_with_prevent_destroy" {
+  count = (var.jumphost_subnet != "" && var.jumphost_instance_create && var.jumphost_log_prevent_destroy) ? 1 : 0
+
+  name              = length(aws_instance.jumphost) > 0 ? "/aws/ec2/${aws_instance.jumphost[0].id}" : "/aws/ec2/jumphost-placeholder"
+  retention_in_days = var.jumphost_log_retention_days
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    Name = "${local.name}-jumphost"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "jumphost_without_prevent_destroy" {
+  count = (var.jumphost_subnet != "" && var.jumphost_instance_create && !var.jumphost_log_prevent_destroy) ? 1 : 0
+
+  name              = length(aws_instance.jumphost) > 0 ? "/aws/ec2/${aws_instance.jumphost[0].id}" : "/aws/ec2/jumphost-placeholder"
+  retention_in_days = var.jumphost_log_retention_days
+
+  lifecycle {
+    prevent_destroy = false
+  }
 
   tags = {
     Name = "${local.name}-jumphost"

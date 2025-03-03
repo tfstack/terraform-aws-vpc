@@ -197,6 +197,18 @@ variable "jumphost_instance_create" {
   default     = true
 }
 
+variable "jumphost_log_retention_days" {
+  description = "The number of days to retain logs for the jumphost in CloudWatch"
+  type        = number
+  default     = 30
+}
+
+variable "jumphost_log_prevent_destroy" {
+  description = "Whether to prevent the destruction of the CloudWatch log group"
+  type        = bool
+  default     = true
+}
+
 variable "eic_subnet" {
   description = "Set to 'jumphost', 'private', or 'none' to determine which subnet gets the EC2 Instance Connect Endpoint"
   type        = string
