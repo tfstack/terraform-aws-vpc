@@ -311,7 +311,7 @@ resource "aws_security_group" "eic" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.jumphost_ingress_cidrs
+    cidr_blocks = length(var.eic_ingress_cidrs) > 0 ? var.eic_ingress_cidrs : var.jumphost_ingress_cidrs
   }
 
   egress {
