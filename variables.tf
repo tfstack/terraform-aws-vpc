@@ -1,5 +1,5 @@
 variable "region" {
-  description = "AWS region for the provider. Defaults to ap-southeast-2 if not specified."
+  description = "(Deprecated) AWS region for the provider. Defaults to ap-southeast-2 if not specified."
   type        = string
   default     = "ap-southeast-2"
 
@@ -122,8 +122,19 @@ variable "ngw_type" {
   }
 }
 
+variable "eic_ingress_cidrs" {
+  description = "List of CIDR blocks for allowed inbound SSH traffic to the EIC"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+
+  validation {
+    condition     = alltrue([for cidr in var.eic_ingress_cidrs : can(cidrsubnet(cidr, 0, 0))])
+    error_message = "Each ingress CIDR block must be valid."
+  }
+}
+
 variable "jumphost_ingress_cidrs" {
-  description = "List of CIDR blocks for allowed inbound SSH traffic to the jumphost"
+  description = "(Deprecated) Use `eic_ingress_cidrs` instead. List of CIDR blocks for allowed inbound SSH traffic to the jumphost"
   type        = list(string)
   default     = ["0.0.0.0/0"]
 
@@ -132,6 +143,7 @@ variable "jumphost_ingress_cidrs" {
     error_message = "Each ingress CIDR block must be valid."
   }
 }
+
 
 variable "jumphost_instance_type" {
   description = "The EC2 instance type for the jumphost"

@@ -23,10 +23,10 @@ module "aws_vpc" {
 
   public_subnets = ["10.0.1.0/24"]
 
-  eic_subnet = "jumphost"
+  eic_subnet        = "jumphost"
+  eic_ingress_cidrs = ["${data.http.my_public_ip.response_body}/32"]
 
   jumphost_subnet          = "10.0.0.0/24"
-  jumphost_ingress_cidrs   = ["${data.http.my_public_ip.response_body}/32"]
   jumphost_instance_type   = "t3.micro"
   jumphost_allow_egress    = true
   jumphost_instance_create = true
