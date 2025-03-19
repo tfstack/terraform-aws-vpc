@@ -1,5 +1,9 @@
 # terraform-aws-vpc
 
+[![Terraform Lint & Validate](https://github.com/tfstack/terraform-aws-vpc/actions/workflows/terraform-lint-validate.yml/badge.svg)](https://github.com/tfstack/terraform-aws-vpc/actions/workflows/terraform-lint-validate.yml)
+[![Markdown Lint](https://github.com/tfstack/terraform-aws-vpc/actions/workflows/markdown-lint.yml/badge.svg)](https://github.com/tfstack/terraform-aws-vpc/actions/workflows/markdown-lint.yml)
+[![Commit Message Conformance](https://github.com/tfstack/terraform-aws-vpc/actions/workflows/commitmsg-conform.yml/badge.svg)](https://github.com/tfstack/terraform-aws-vpc/actions/workflows/commitmsg-conform.yml)
+
 Terraform module for provisioning a VPC with networking components
 
 ## Requirements
