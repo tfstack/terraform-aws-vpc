@@ -100,6 +100,12 @@ variable "tags" {
   default     = {}
 }
 
+variable "enable_eks_tags" {
+  description = "Enable EKS role/internal-elb tags on private subnets"
+  type        = bool
+  default     = false
+}
+
 variable "create_igw" {
   description = "Whether to create an Internet Gateway (IGW) for public subnets"
   type        = bool
