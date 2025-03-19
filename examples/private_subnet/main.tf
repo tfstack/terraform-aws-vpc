@@ -31,6 +31,13 @@ module "aws_vpc" {
 
   create_igw = true
   ngw_type   = "single"
+
+  tags = {
+    Environment = "dev"
+    Project     = "example"
+  }
+
+  enable_eks_tags = false
 }
 
 data "aws_ami" "amzn2023" {

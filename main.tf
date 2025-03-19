@@ -193,9 +193,14 @@ resource "aws_subnet" "private" {
   cidr_block        = var.private_subnets[count.index]
   availability_zone = var.availability_zones[count.index]
 
-  tags = {
-    Name = "${local.name}-private-${count.index}"
-  }
+  tags = merge(
+    {
+      Name = "${local.name}-private-${count.index}"
+    },
+    var.enable_eks_tags ? {
+      "kubernetes.io/role/internal-elb" = "1"
+    } : {}
+  )
 }
 
 resource "aws_route_table" "private" {
