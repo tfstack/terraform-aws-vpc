@@ -15,7 +15,6 @@ data "http" "my_public_ip" {
 module "aws_vpc" {
   source = "../.."
 
-  region             = "ap-southeast-1"
   vpc_name           = "vpc"
   vpc_cidr           = "10.0.0.0/16"
   availability_zones = ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]

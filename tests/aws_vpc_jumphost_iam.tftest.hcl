@@ -8,7 +8,6 @@ run "setup_vpc" {
 #Jumphost IAM Role and Policy Attachments
 run "test_jumphost_iam_policies" {
   variables {
-    region             = "ap-southeast-1"
     vpc_name           = "test-vpc-${run.setup_vpc.suffix}"
     vpc_cidr           = "10.0.0.0/16"
     availability_zones = ["ap-southeast-1a"]

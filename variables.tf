@@ -1,14 +1,3 @@
-variable "region" {
-  description = "(Deprecated) AWS region for the provider. Defaults to ap-southeast-2 if not specified."
-  type        = string
-  default     = "ap-southeast-2"
-
-  validation {
-    condition     = can(regex("^([a-z]{2}-[a-z]+-\\d{1})$", var.region))
-    error_message = "Invalid AWS region format. Example: 'us-east-1', 'ap-southeast-2'."
-  }
-}
-
 variable "vpc_name" {
   description = "The name of the VPC"
   type        = string
@@ -169,21 +158,36 @@ variable "jumphost_allow_egress" {
 }
 
 variable "jumphost_user_data" {
-  description = "Raw user data content for the EC2 instance. Takes precedence over file-based user data."
+  description = "Raw shell script content for the EC2 instance. Takes precedence over file-based user data."
   type        = string
   default     = ""
+
+  validation {
+    condition     = !can(regex("#cloud-config", var.jumphost_user_data))
+    error_message = "Only shell scripts are allowed. Do not use cloud-init YAML in 'jumphost_user_data'."
+  }
 }
 
 variable "jumphost_user_data_file" {
   description = "Path to a user data file. If provided, its content will be used."
   type        = string
   default     = ""
+
+  validation {
+    condition     = var.jumphost_user_data_file == "" || !can(regex("#cloud-config", file(var.jumphost_user_data_file)))
+    error_message = "Only shell scripts are allowed. Do not use cloud-init YAML 'jumphost_user_data_file'."
+  }
 }
 
 variable "jumphost_user_data_template" {
   description = "Path to a user data template file. If provided, it will be rendered using `jumphost_user_data_template_vars`."
   type        = string
   default     = ""
+
+  validation {
+    condition     = var.jumphost_user_data_template == "" || !can(regex("#cloud-config", templatefile(var.jumphost_user_data_template, {})))
+    error_message = "Only shell scripts are allowed. Do not use cloud-init YAML 'jumphost_user_data_template'."
+  }
 }
 
 variable "jumphost_user_data_template_vars" {

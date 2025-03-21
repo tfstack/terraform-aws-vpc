@@ -10,12 +10,12 @@ run "setup_vpc" {
 ## **Test Inline User Data**
 run "test_jumphost_inline_userdata" {
   variables {
-    region                = "ap-southeast-1"
-    vpc_name              = "test-vpc-${run.setup_vpc.suffix}"
-    vpc_cidr              = "10.0.0.0/16"
-    availability_zones    = ["ap-southeast-1a"]
-    jumphost_subnet       = "10.0.0.0/24"
-    jumphost_allow_egress = true
+    vpc_name                     = "test-vpc-${run.setup_vpc.suffix}"
+    vpc_cidr                     = "10.0.0.0/16"
+    availability_zones           = ["ap-southeast-1a"]
+    jumphost_subnet              = "10.0.0.0/24"
+    jumphost_allow_egress        = true
+    jumphost_log_prevent_destroy = false
 
     jumphost_user_data = <<-EOF
       #!/bin/bash
@@ -31,46 +31,5 @@ run "test_jumphost_inline_userdata" {
   assert {
     condition     = aws_instance.jumphost[0].user_data_base64 != null
     error_message = "Jumphost EC2 instance does not have user data applied."
-  }
-}
-
-## **Test File-Based User Data**
-run "test_jumphost_file_userdata" {
-  variables {
-    region                = "ap-southeast-1"
-    vpc_name              = "test-vpc-${run.setup_vpc.suffix}"
-    vpc_cidr              = "10.0.0.0/16"
-    availability_zones    = ["ap-southeast-1a"]
-    jumphost_subnet       = "10.0.0.0/24"
-    jumphost_allow_egress = true
-
-    jumphost_user_data_file = run.setup_vpc.cloud_init_yaml
-  }
-
-  assert {
-    condition     = aws_instance.jumphost[0].user_data_base64 != null
-    error_message = "Jumphost EC2 instance user data file not applied."
-  }
-}
-
-## **Test Template-Based User Data**
-run "test_jumphost_template_userdata" {
-  variables {
-    region                = "ap-southeast-1"
-    vpc_name              = "test-vpc-${run.setup_vpc.suffix}"
-    vpc_cidr              = "10.0.0.0/16"
-    availability_zones    = ["ap-southeast-1a"]
-    jumphost_subnet       = "10.0.0.0/24"
-    jumphost_allow_egress = true
-
-    jumphost_user_data_template = run.setup_vpc.cloud_init_yaml_tpl
-    jumphost_user_data_template_vars = {
-      packages = ["jq", "curl"]
-    }
-  }
-
-  assert {
-    condition     = aws_instance.jumphost[0].user_data_base64 != null
-    error_message = "Jumphost EC2 instance template-based user data not applied."
   }
 }

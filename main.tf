@@ -41,43 +41,13 @@ locals {
     var.jumphost_user_data != null && var.jumphost_user_data != "" ? var.jumphost_user_data :
     var.jumphost_user_data_file != null && var.jumphost_user_data_file != "" ? file(var.jumphost_user_data_file) :
     var.jumphost_user_data_template != null && var.jumphost_user_data_template != "" ? templatefile(var.jumphost_user_data_template, var.jumphost_user_data_template_vars) :
-    "#!/bin/bash\n" # Fallback default value to avoid null issues
+    ""
   )
 
-  # Determine CloudWatch user data based on format
   cloudwatch_user_data = (
-    length(local.user_data) > 0 && startswith(local.user_data, "#cloud-config")
-    ? ""
-    : templatefile("${path.module}/external/cloudwatch-agent.sh", { aws_region = data.aws_region.current.name })
+    templatefile("${path.module}/external/cloudwatch-agent.sh.tpl", { aws_region = data.aws_region.current.name })
   )
 
-  ### for now, not supported for cloud-config
-  # cloudwatch_user_data = (
-  #   length(local.user_data) > 0 && startswith(local.user_data, "#cloud-config")
-  #   ? templatefile("${path.module}/external/cloudwatch-agent.yaml", { aws_region = data.aws_region.current.name })
-  #   : templatefile("${path.module}/external/cloudwatch-agent.sh", { aws_region = data.aws_region.current.name })
-  # )
-  ###
-
-  # Merge user data with CloudWatch Agent setup **BEFORE checking duplicates**
-  merged_user_data = join("\n", compact([
-    local.user_data,
-    local.cloudwatch_user_data
-  ]))
-
-  # Split merged user data into lines and remove duplicate shebangs or cloud-config
-  cleaned_lines = distinct(split("\n", local.merged_user_data))
-
-  # Reconstruct user data after removing duplicate shebangs and cloud-config
-  cleaned_user_data = join("\n", local.cleaned_lines)
-
-  # Ensure CloudInit remains unchanged, and add `#!/bin/bash` only if needed
-  final_user_data = (
-    startswith(local.cleaned_user_data, "#cloud-config")
-    ? local.cleaned_user_data
-    : (startswith(local.cleaned_user_data, "#!")
-    ? local.cleaned_user_data : join("\n", compact(["#!/bin/bash", local.cleaned_user_data])))
-  )
   # Ensure private subnet selection is always valid
   private_subnet_map     = length(aws_subnet.private) > 0 ? zipmap(var.private_subnets, aws_subnet.private[*].id) : {}
   default_private_subnet = length(var.private_subnets) > 0 ? var.private_subnets[0] : null
@@ -89,6 +59,15 @@ locals {
     var.eic_subnet == "private" ? lookup(local.private_subnet_map, local.selected_private_subnet, null) :
     null
   )
+}
+
+data "template_file" "user_data" {
+  template = file("${path.module}/external/cloud-init-main.yaml.tpl")
+
+  vars = {
+    user_data            = local.user_data
+    cloudwatch_user_data = local.cloudwatch_user_data
+  }
 }
 
 # ===================================
@@ -449,7 +428,7 @@ resource "aws_instance" "jumphost" {
   iam_instance_profile = length(aws_iam_instance_profile.jumphost) > 0 ? aws_iam_instance_profile.jumphost[0].name : null
   subnet_id            = length(aws_subnet.jumphost) > 0 ? aws_subnet.jumphost[0].id : null
 
-  user_data_base64 = base64encode(local.final_user_data)
+  user_data_base64 = base64encode(data.template_file.user_data.rendered)
 
   vpc_security_group_ids = (
     length(aws_security_group.eic) > 0 ?
