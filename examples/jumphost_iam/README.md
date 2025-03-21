@@ -19,7 +19,6 @@ You can attach existing AWS IAM roles to the jumphost using the `jumphost_iam_ro
 module "aws_vpc" {
   source = "../.."
 
-  region             = "ap-southeast-1"
   vpc_name           = "demo"
   vpc_cidr           = "10.0.0.0/16"
   availability_zones = data.aws_availability_zones.available.names

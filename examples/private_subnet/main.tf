@@ -1,6 +1,5 @@
 locals {
-  name   = "vpc-test"
-  region = "ap-southeast-1"
+  name = "vpc-test"
 }
 
 data "http" "my_public_ip" {
@@ -16,7 +15,6 @@ provider "aws" {
 module "aws_vpc" {
   source = "../.."
 
-  region             = local.region
   vpc_name           = local.name
   vpc_cidr           = "10.0.0.0/16"
   availability_zones = data.aws_availability_zones.available.names

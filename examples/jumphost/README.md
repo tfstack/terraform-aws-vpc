@@ -21,7 +21,6 @@ If no user data is provided, the instance launches without any custom initializa
 module "aws_vpc" {
   source = "../.."
 
-  region             = "ap-southeast-1"
   vpc_name           = "vpc"
   vpc_cidr           = "10.0.0.0/16"
   availability_zones = ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]
@@ -69,36 +68,6 @@ echo "Hello, this is from a file!" > /tmp/hello.txt
 module "aws_vpc" {
   source = "../.."
   jumphost_user_data_file = "${path.module}/cloud-init.sh"
-}
-```
-
----
-
-### **4. User Data from a Template**
-
-Use `templatefile()` to inject dynamic values into Cloud-Init.
-
-#### **Create a template file: `cloud-init.yaml.tpl`**
-
-```yaml
-#cloud-config
-package_update: true
-package_upgrade: true
-packages:
-%{ for pkg in packages ~}
-  - ${pkg}
-%{ endfor ~}
-```
-
-#### **Use Terraform to apply the template**
-
-```hcl
-module "aws_vpc" {
-  source = "../.."
-  jumphost_user_data_template = "${path.module}/cloud-init.yaml.tpl"
-  jumphost_user_data_template_vars = {
-    packages = ["jq", "curl"]
-  }
 }
 ```
 

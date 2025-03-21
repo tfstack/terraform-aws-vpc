@@ -16,7 +16,6 @@ locals {
 module "aws_vpc" {
   source = "../.."
 
-  region             = "ap-southeast-1"
   vpc_name           = local.name
   vpc_cidr           = "10.0.0.0/16"
   availability_zones = data.aws_availability_zones.available.names
@@ -31,16 +30,12 @@ module "aws_vpc" {
   jumphost_allow_egress    = true
   jumphost_instance_create = true
 
-  jumphost_user_data = <<-EOF
-    #!/bin/bash
-    hostnamectl set-hostname jumphost
-  EOF
-
   # jumphost_user_data = <<-EOF
-  #   #cloud-config
-  #   runcmd:
-  #     - hostnamectl set-hostname jumphost
+  #   #!/bin/bash
+  #   hostnamectl set-hostname jumphost
   # EOF
+
+  jumphost_user_data_file = "${path.module}/external/cloud-init.sh"
 
   jumphost_log_retention_days  = 1
   jumphost_log_prevent_destroy = false

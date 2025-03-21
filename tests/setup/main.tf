@@ -7,10 +7,6 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "ap-southeast-1"
-}
-
 # Generate a random suffix for resource naming
 resource "random_string" "suffix" {
   length  = 6
@@ -41,14 +37,6 @@ resource "aws_iam_policy" "jumphost_kafka_policy" {
 
 output "suffix" {
   value = random_string.suffix.result
-}
-
-output "cloud_init_yaml" {
-  value = "${path.module}/external/cloud-init.yaml"
-}
-
-output "cloud_init_yaml_tpl" {
-  value = "${path.module}/external/cloud-init.yaml.tpl"
 }
 
 output "jumphost_inline_policy_arns" {
