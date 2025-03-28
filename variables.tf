@@ -95,6 +95,23 @@ variable "enable_eks_tags" {
   default     = false
 }
 
+variable "enable_s3_vpc_endpoint" {
+  description = "Whether to create the S3 VPC endpoint"
+  type        = bool
+  default     = false
+
+  validation {
+    condition = (
+      !var.enable_s3_vpc_endpoint ||
+      length(var.private_subnets) +
+      length(var.isolated_subnets) +
+      length(var.database_subnets) +
+      length([var.jumphost_subnet]) > 0
+    )
+    error_message = "If enable_s3_vpc_endpoint is true, at least one of the subnet lists must be non-empty."
+  }
+}
+
 variable "create_igw" {
   description = "Whether to create an Internet Gateway (IGW) for public subnets"
   type        = bool
@@ -138,7 +155,6 @@ variable "jumphost_ingress_cidrs" {
     error_message = "Each ingress CIDR block must be valid."
   }
 }
-
 
 variable "jumphost_instance_type" {
   description = "The EC2 instance type for the jumphost"

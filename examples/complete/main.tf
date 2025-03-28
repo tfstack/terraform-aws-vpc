@@ -15,13 +15,18 @@ module "aws_vpc" {
   isolated_subnets = ["10.0.7.0/24", "10.0.8.0/24"]
   database_subnets = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
 
-  eic_ingress_cidrs      = ["${data.http.my_public_ip.response_body}/32"]
-  jumphost_subnet        = "10.0.0.0/24"
-  jumphost_instance_type = "t3.micro"
-  jumphost_allow_egress  = true
+  eic_subnet        = "jumphost"
+  eic_ingress_cidrs = ["${data.http.my_public_ip.response_body}/32"]
 
-  create_igw = true
-  ngw_type   = "single"
+  jumphost_subnet              = "10.0.0.0/24"
+  jumphost_instance_type       = "t3.micro"
+  jumphost_allow_egress        = true
+  jumphost_instance_create     = true
+  jumphost_log_prevent_destroy = false
+
+  enable_s3_vpc_endpoint = true
+  create_igw             = true
+  ngw_type               = "single"
 
   tags = {
     Environment = "dev"

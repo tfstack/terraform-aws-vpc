@@ -221,6 +221,22 @@ resource "aws_subnet" "isolated" {
   }
 }
 
+resource "aws_route_table" "isolated" {
+  count  = var.enable_s3_vpc_endpoint ? length(var.isolated_subnets) : 0
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name = "${local.name}-isolated-${count.index}"
+  }
+}
+
+resource "aws_route_table_association" "isolated" {
+  count = var.enable_s3_vpc_endpoint ? length(var.isolated_subnets) : 0
+
+  subnet_id      = aws_subnet.isolated[count.index].id
+  route_table_id = aws_route_table.isolated[count.index].id
+}
+
 # ===================================
 # Database Subnets
 # ===================================
@@ -234,6 +250,22 @@ resource "aws_subnet" "database" {
   tags = {
     Name = "${local.name}-database-${count.index}"
   }
+}
+
+resource "aws_route_table" "database" {
+  count  = var.enable_s3_vpc_endpoint ? length(var.database_subnets) : 0
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name = "${local.name}-database-${count.index}"
+  }
+}
+
+resource "aws_route_table_association" "database" {
+  count = var.enable_s3_vpc_endpoint ? length(var.database_subnets) : 0
+
+  subnet_id      = aws_subnet.database[count.index].id
+  route_table_id = aws_route_table.database[count.index].id
 }
 
 # ===================================
@@ -251,22 +283,57 @@ resource "aws_subnet" "jumphost" {
   }
 }
 
-resource "aws_route_table" "jumphost" {
-  count = (
+# resource "aws_route_table" "jumphost" {
+#   count = (
+#     var.jumphost_subnet != "" &&
+#     (var.jumphost_allow_egress || var.enable_s3_vpc_endpoint) &&
+#     var.ngw_type != "none" &&
+#     length(aws_nat_gateway.this) > 0
+#   ) ? 1 : 0
+
+#   vpc_id = aws_vpc.this.id
+
+#   dynamic "route" {
+#     for_each = var.ngw_type != "none" ? [1] : []
+#     content {
+#       cidr_block     = "0.0.0.0/0"
+#       nat_gateway_id = aws_nat_gateway.this[var.ngw_type == "one_per_az" ? count.index : 0].id
+#     }
+#   }
+
+#   tags = {
+#     Name = "${local.name}-jumphost"
+#   }
+# }
+
+# resource "aws_route_table_association" "jumphost" {
+#   count = (
+#     var.jumphost_subnet != "" &&
+#     (var.jumphost_allow_egress || var.enable_s3_vpc_endpoint) &&
+#     var.ngw_type != "none" &&
+#     length(aws_route_table.jumphost) > 0
+#   ) ? 1 : 0
+
+#   subnet_id      = aws_subnet.jumphost[0].id
+#   route_table_id = aws_route_table.jumphost[0].id
+# }
+
+locals {
+  create_jumphost_route_allow_egress = (
     var.jumphost_subnet != "" &&
     var.jumphost_allow_egress &&
     var.ngw_type != "none" &&
     length(aws_nat_gateway.this) > 0
-  ) ? 1 : 0
+  )
+}
 
+resource "aws_route_table" "jumphost_allow_egress" {
+  count  = local.create_jumphost_route_allow_egress ? 1 : 0
   vpc_id = aws_vpc.this.id
 
-  dynamic "route" {
-    for_each = var.ngw_type != "none" ? [1] : []
-    content {
-      cidr_block     = "0.0.0.0/0"
-      nat_gateway_id = aws_nat_gateway.this[var.ngw_type == "one_per_az" ? count.index : 0].id
-    }
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.this[var.ngw_type == "one_per_az" ? count.index : 0].id
   }
 
   tags = {
@@ -274,16 +341,25 @@ resource "aws_route_table" "jumphost" {
   }
 }
 
-resource "aws_route_table_association" "jumphost" {
-  count = (
-    var.jumphost_subnet != "" &&
-    var.jumphost_allow_egress &&
-    var.ngw_type != "none" &&
-    length(aws_route_table.jumphost) > 0
-  ) ? 1 : 0
+resource "aws_route_table" "jumphost_no_egress" {
+  count  = local.create_jumphost_route_allow_egress ? 0 : 1
+  vpc_id = aws_vpc.this.id
 
-  subnet_id      = aws_subnet.jumphost[0].id
-  route_table_id = aws_route_table.jumphost[0].id
+  tags = {
+    Name = "${local.name}-jumphost"
+  }
+}
+
+resource "aws_route_table_association" "jumphost" {
+  count = var.jumphost_subnet != "" ? 1 : 0
+
+  subnet_id = aws_subnet.jumphost[0].id
+
+  route_table_id = (
+    local.create_jumphost_route_allow_egress ?
+    aws_route_table.jumphost_allow_egress[0].id :
+    aws_route_table.jumphost_no_egress[0].id
+  )
 }
 
 resource "aws_security_group" "eic" {
@@ -322,6 +398,44 @@ resource "aws_ec2_instance_connect_endpoint" "this" {
   tags = {
     Name = "${local.name}-instance-connect"
   }
+}
+
+# ===================================
+# VPC Endpoints
+# ===================================
+resource "aws_vpc_endpoint" "s3" {
+  count             = var.enable_s3_vpc_endpoint ? 1 : 0
+  vpc_id            = aws_vpc.this.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = tolist(flatten(concat(
+    try(aws_route_table.isolated[*].id, []),
+    try(aws_route_table.database[*].id, []),
+    try(aws_route_table.private[*].id, []),
+    try(
+      var.jumphost_subnet != "" ?
+      (
+        var.jumphost_allow_egress && var.ngw_type != "none" && length(aws_nat_gateway.this) > 0 ?
+        [aws_route_table.jumphost_allow_egress[0].id] :
+        [aws_route_table.jumphost_no_egress[0].id]
+      ) : [],
+      []
+    )
+  )))
+
+  tags = {
+    Name = "${local.name}-s3-endpoint"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  depends_on = [
+    aws_route_table.jumphost_allow_egress,
+    aws_route_table.jumphost_no_egress
+  ]
 }
 
 # ===================================
