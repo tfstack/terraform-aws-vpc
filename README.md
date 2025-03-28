@@ -41,9 +41,14 @@ Terraform module for provisioning a VPC with networking components
 | [aws_instance.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/instance) | resource |
 | [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/internet_gateway) | resource |
 | [aws_nat_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/nat_gateway) | resource |
-| [aws_route_table.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
+| [aws_route_table.database](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
+| [aws_route_table.isolated](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
+| [aws_route_table.jumphost_allow_egress](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
+| [aws_route_table.jumphost_no_egress](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
 | [aws_route_table.private](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
 | [aws_route_table.public](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
+| [aws_route_table_association.database](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.isolated](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
 | [aws_route_table_association.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
 | [aws_route_table_association.private](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
 | [aws_route_table_association.public](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
@@ -54,6 +59,7 @@ Terraform module for provisioning a VPC with networking components
 | [aws_subnet.private](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/subnet) | resource |
 | [aws_subnet.public](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/subnet) | resource |
 | [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/vpc) | resource |
+| [aws_vpc_endpoint.s3](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/vpc_endpoint) | resource |
 | [aws_ami.amzn2023](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/ami) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/caller_identity) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/region) | data source |
@@ -71,6 +77,7 @@ Terraform module for provisioning a VPC with networking components
 | <a name="input_eic_private_subnet"></a> [eic\_private\_subnet](#input\_eic\_private\_subnet) | Specify which private subnet to use for EC2 Instance Connect Endpoint. Must be one of private\_subnets or empty to use the first subnet. | `string` | `""` | no |
 | <a name="input_eic_subnet"></a> [eic\_subnet](#input\_eic\_subnet) | Set to 'jumphost', 'private', or 'none' to determine which subnet gets the EC2 Instance Connect Endpoint | `string` | `"none"` | no |
 | <a name="input_enable_eks_tags"></a> [enable\_eks\_tags](#input\_enable\_eks\_tags) | Enable EKS role/internal-elb tags on private subnets | `bool` | `false` | no |
+| <a name="input_enable_s3_vpc_endpoint"></a> [enable\_s3\_vpc\_endpoint](#input\_enable\_s3\_vpc\_endpoint) | Whether to create the S3 VPC endpoint | `bool` | `false` | no |
 | <a name="input_isolated_subnets"></a> [isolated\_subnets](#input\_isolated\_subnets) | List of CIDR blocks for isolated subnets | `list(string)` | `[]` | no |
 | <a name="input_jumphost_allow_egress"></a> [jumphost\_allow\_egress](#input\_jumphost\_allow\_egress) | Whether to allow outbound internet access from the jumphost | `bool` | `false` | no |
 | <a name="input_jumphost_iam_role_arns"></a> [jumphost\_iam\_role\_arns](#input\_jumphost\_iam\_role\_arns) | List of IAM role ARNs to be included in policies. | `list(string)` | `[]` | no |
@@ -96,24 +103,25 @@ Terraform module for provisioning a VPC with networking components
 
 | Name | Description |
 |------|-------------|
-| <a name="output_database_subnet_cidrs"></a> [database\_subnet\_cidrs](#output\_database\_subnet\_cidrs) | n/a |
-| <a name="output_database_subnet_ids"></a> [database\_subnet\_ids](#output\_database\_subnet\_ids) | n/a |
-| <a name="output_eic_endpoint_id"></a> [eic\_endpoint\_id](#output\_eic\_endpoint\_id) | n/a |
-| <a name="output_eic_security_group_id"></a> [eic\_security\_group\_id](#output\_eic\_security\_group\_id) | n/a |
-| <a name="output_eip_allocations"></a> [eip\_allocations](#output\_eip\_allocations) | n/a |
-| <a name="output_internet_gateway_id"></a> [internet\_gateway\_id](#output\_internet\_gateway\_id) | n/a |
-| <a name="output_isolated_subnet_cidrs"></a> [isolated\_subnet\_cidrs](#output\_isolated\_subnet\_cidrs) | n/a |
-| <a name="output_isolated_subnet_ids"></a> [isolated\_subnet\_ids](#output\_isolated\_subnet\_ids) | n/a |
-| <a name="output_jumphost_instance_id"></a> [jumphost\_instance\_id](#output\_jumphost\_instance\_id) | n/a |
-| <a name="output_jumphost_subnet_cidr"></a> [jumphost\_subnet\_cidr](#output\_jumphost\_subnet\_cidr) | n/a |
-| <a name="output_jumphost_subnet_id"></a> [jumphost\_subnet\_id](#output\_jumphost\_subnet\_id) | n/a |
-| <a name="output_nat_gateway_ids"></a> [nat\_gateway\_ids](#output\_nat\_gateway\_ids) | n/a |
-| <a name="output_private_subnet_cidrs"></a> [private\_subnet\_cidrs](#output\_private\_subnet\_cidrs) | n/a |
-| <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | n/a |
-| <a name="output_public_subnet_cidrs"></a> [public\_subnet\_cidrs](#output\_public\_subnet\_cidrs) | n/a |
-| <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | n/a |
-| <a name="output_region"></a> [region](#output\_region) | n/a |
-| <a name="output_route_table_private_ids"></a> [route\_table\_private\_ids](#output\_route\_table\_private\_ids) | n/a |
-| <a name="output_route_table_public_ids"></a> [route\_table\_public\_ids](#output\_route\_table\_public\_ids) | n/a |
-| <a name="output_vpc_cidr"></a> [vpc\_cidr](#output\_vpc\_cidr) | n/a |
-| <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | n/a |
+| <a name="output_database_subnet_cidrs"></a> [database\_subnet\_cidrs](#output\_database\_subnet\_cidrs) | CIDR blocks of database subnets |
+| <a name="output_database_subnet_ids"></a> [database\_subnet\_ids](#output\_database\_subnet\_ids) | IDs of all database subnets |
+| <a name="output_eic_endpoint_id"></a> [eic\_endpoint\_id](#output\_eic\_endpoint\_id) | ID of the EC2 Instance Connect Endpoint (if created) |
+| <a name="output_eic_security_group_id"></a> [eic\_security\_group\_id](#output\_eic\_security\_group\_id) | ID of the security group used by EC2 Instance Connect (EIC), if defined |
+| <a name="output_eip_allocations"></a> [eip\_allocations](#output\_eip\_allocations) | List of Elastic IP allocation IDs (if created) |
+| <a name="output_internet_gateway_id"></a> [internet\_gateway\_id](#output\_internet\_gateway\_id) | ID of the Internet Gateway (if created) |
+| <a name="output_isolated_subnet_cidrs"></a> [isolated\_subnet\_cidrs](#output\_isolated\_subnet\_cidrs) | CIDR blocks of isolated subnets |
+| <a name="output_isolated_subnet_ids"></a> [isolated\_subnet\_ids](#output\_isolated\_subnet\_ids) | IDs of all isolated subnets |
+| <a name="output_jumphost_instance_id"></a> [jumphost\_instance\_id](#output\_jumphost\_instance\_id) | ID of the jumphost EC2 instance (if created) |
+| <a name="output_jumphost_subnet_cidr"></a> [jumphost\_subnet\_cidr](#output\_jumphost\_subnet\_cidr) | CIDR block of the jumphost subnet (if defined) |
+| <a name="output_jumphost_subnet_id"></a> [jumphost\_subnet\_id](#output\_jumphost\_subnet\_id) | ID of the jumphost subnet (if defined) |
+| <a name="output_nat_gateway_ids"></a> [nat\_gateway\_ids](#output\_nat\_gateway\_ids) | List of NAT Gateway IDs (if created) |
+| <a name="output_private_subnet_cidrs"></a> [private\_subnet\_cidrs](#output\_private\_subnet\_cidrs) | CIDR blocks of private subnets |
+| <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | IDs of all private subnets |
+| <a name="output_public_subnet_cidrs"></a> [public\_subnet\_cidrs](#output\_public\_subnet\_cidrs) | CIDR blocks of public subnets |
+| <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | IDs of all public subnets |
+| <a name="output_region"></a> [region](#output\_region) | The current AWS region |
+| <a name="output_route_table_private_ids"></a> [route\_table\_private\_ids](#output\_route\_table\_private\_ids) | IDs of private route tables |
+| <a name="output_route_table_public_ids"></a> [route\_table\_public\_ids](#output\_route\_table\_public\_ids) | IDs of public route tables |
+| <a name="output_s3_vpc_endpoint_id"></a> [s3\_vpc\_endpoint\_id](#output\_s3\_vpc\_endpoint\_id) | The ID of the S3 VPC Endpoint |
+| <a name="output_vpc_cidr"></a> [vpc\_cidr](#output\_vpc\_cidr) | The CIDR block of the created VPC |
+| <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | The ID of the created VPC |
