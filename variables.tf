@@ -95,6 +95,16 @@ variable "enable_eks_tags" {
   default     = false
 }
 
+variable "eks_cluster_name" {
+  description = "EKS cluster name to use for kubernetes.io/cluster/<name> tag"
+  type        = string
+  default     = null
+  validation {
+    condition     = var.enable_eks_tags == false || (var.enable_eks_tags == true && var.eks_cluster_name != null)
+    error_message = "When enable_eks_tags is true, eks_cluster_name must be provided."
+  }
+}
+
 variable "enable_s3_vpc_endpoint" {
   description = "Whether to create the S3 VPC endpoint"
   type        = bool

@@ -32,6 +32,9 @@ module "aws_vpc" {
     Environment = "dev"
     Project     = "example"
   }
+
+  enable_eks_tags  = false
+  eks_cluster_name = "cltest"
 }
 
 # Outputs
