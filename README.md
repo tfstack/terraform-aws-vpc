@@ -8,16 +8,14 @@ Terraform module for provisioning a VPC with networking components
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.84.0 |
+No requirements.
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.84.0 |
-| <a name="provider_template"></a> [template](#provider\_template) | 2.2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_template"></a> [template](#provider\_template) | n/a |
 
 ## Modules
 
@@ -29,41 +27,41 @@ Terraform module for provisioning a VPC with networking components
 
 | Name | Type |
 |------|------|
-| [aws_cloudwatch_log_group.jumphost_with_prevent_destroy](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/cloudwatch_log_group) | resource |
-| [aws_cloudwatch_log_group.jumphost_without_prevent_destroy](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/cloudwatch_log_group) | resource |
-| [aws_ec2_instance_connect_endpoint.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/ec2_instance_connect_endpoint) | resource |
-| [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/eip) | resource |
-| [aws_iam_instance_profile.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_instance_profile) | resource |
-| [aws_iam_policy.jumphost_logging](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_policy) | resource |
-| [aws_iam_role.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.jumphost_logging](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_instance.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/instance) | resource |
-| [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/internet_gateway) | resource |
-| [aws_nat_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/nat_gateway) | resource |
-| [aws_route_table.database](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
-| [aws_route_table.isolated](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
-| [aws_route_table.jumphost_allow_egress](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
-| [aws_route_table.jumphost_no_egress](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
-| [aws_route_table.private](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
-| [aws_route_table.public](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table) | resource |
-| [aws_route_table_association.database](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
-| [aws_route_table_association.isolated](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
-| [aws_route_table_association.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
-| [aws_route_table_association.private](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
-| [aws_route_table_association.public](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/route_table_association) | resource |
-| [aws_security_group.eic](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/security_group) | resource |
-| [aws_subnet.database](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/subnet) | resource |
-| [aws_subnet.isolated](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/subnet) | resource |
-| [aws_subnet.jumphost](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/subnet) | resource |
-| [aws_subnet.private](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/subnet) | resource |
-| [aws_subnet.public](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/subnet) | resource |
-| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/vpc) | resource |
-| [aws_vpc_endpoint.s3](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/resources/vpc_endpoint) | resource |
-| [aws_ami.amzn2023](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/ami) | data source |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/caller_identity) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/region) | data source |
-| [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/5.84.0/docs/data-sources/security_group) | data source |
+| [aws_cloudwatch_log_group.jumphost_with_prevent_destroy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_log_group.jumphost_without_prevent_destroy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_ec2_instance_connect_endpoint.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_instance_connect_endpoint) | resource |
+| [aws_eip.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip) | resource |
+| [aws_iam_instance_profile.jumphost](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
+| [aws_iam_policy.jumphost_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.jumphost](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.jumphost](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.jumphost_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_instance.jumphost](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
+| [aws_internet_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
+| [aws_nat_gateway.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/nat_gateway) | resource |
+| [aws_route_table.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table.isolated](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table.jumphost_allow_egress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table.jumphost_no_egress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table_association.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.isolated](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.jumphost](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_route_table_association.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_security_group.eic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_subnet.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_subnet.isolated](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_subnet.jumphost](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_subnet.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_subnet.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_vpc.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
+| [aws_vpc_endpoint.s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
+| [aws_ami.amzn2023](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/security_group) | data source |
 | [template_file.user_data](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file) | data source |
 
 ## Inputs
@@ -76,6 +74,7 @@ Terraform module for provisioning a VPC with networking components
 | <a name="input_eic_ingress_cidrs"></a> [eic\_ingress\_cidrs](#input\_eic\_ingress\_cidrs) | List of CIDR blocks for allowed inbound SSH traffic to the EIC | `list(string)` | <pre>[<br/>  "0.0.0.0/0"<br/>]</pre> | no |
 | <a name="input_eic_private_subnet"></a> [eic\_private\_subnet](#input\_eic\_private\_subnet) | Specify which private subnet to use for EC2 Instance Connect Endpoint. Must be one of private\_subnets or empty to use the first subnet. | `string` | `""` | no |
 | <a name="input_eic_subnet"></a> [eic\_subnet](#input\_eic\_subnet) | Set to 'jumphost', 'private', or 'none' to determine which subnet gets the EC2 Instance Connect Endpoint | `string` | `"none"` | no |
+| <a name="input_eks_cluster_name"></a> [eks\_cluster\_name](#input\_eks\_cluster\_name) | EKS cluster name to use for kubernetes.io/cluster/<name> tag | `string` | `null` | no |
 | <a name="input_enable_eks_tags"></a> [enable\_eks\_tags](#input\_enable\_eks\_tags) | Enable EKS role/internal-elb tags on private subnets | `bool` | `false` | no |
 | <a name="input_enable_s3_vpc_endpoint"></a> [enable\_s3\_vpc\_endpoint](#input\_enable\_s3\_vpc\_endpoint) | Whether to create the S3 VPC endpoint | `bool` | `false` | no |
 | <a name="input_isolated_subnets"></a> [isolated\_subnets](#input\_isolated\_subnets) | List of CIDR blocks for isolated subnets | `list(string)` | `[]` | no |
