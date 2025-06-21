@@ -5,7 +5,7 @@ output "s3_vpc_endpoint_id" {
 
 output "region" {
   description = "The current AWS region"
-  value       = data.aws_region.current.name
+  value       = data.aws_region.current.region
 }
 
 output "vpc_id" {

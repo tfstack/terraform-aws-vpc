@@ -45,7 +45,7 @@ locals {
   )
 
   cloudwatch_user_data = (
-    templatefile("${path.module}/external/cloudwatch-agent.sh.tpl", { aws_region = data.aws_region.current.name })
+    templatefile("${path.module}/external/cloudwatch-agent.sh.tpl", { aws_region = data.aws_region.current.region })
   )
 
   # Ensure private subnet selection is always valid
@@ -413,7 +413,7 @@ resource "aws_ec2_instance_connect_endpoint" "this" {
 resource "aws_vpc_endpoint" "s3" {
   count             = var.enable_s3_vpc_endpoint ? 1 : 0
   vpc_id            = aws_vpc.this.id
-  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  service_name      = "com.amazonaws.${data.aws_region.current.region}.s3"
   vpc_endpoint_type = "Gateway"
 
   route_table_ids = tolist(flatten(concat(
